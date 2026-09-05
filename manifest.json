@@ -1,0 +1,14 @@
+{
+  "name": "PyMaster - Learn Python",
+  "short_name": "PyMaster",
+  "description": "A gamified app for learning Python, with real Python code running right in your browser.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f4f5fb",
+  "theme_color": "#6c5ce7",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

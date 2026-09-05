@@ -1,10 +1,12 @@
 import { CURRICULUM, findLesson, findChallenge } from "./curriculum.js";
 import {
-  loadProgress, touchStreak, levelForXp, xpIntoLevel, xpForNextLevel,
+  loadProgress, saveProgress, touchStreak, levelForXp, xpIntoLevel, xpForNextLevel,
   recordChallengeResult, isChallengeCompleted, lessonProgress, subjectProgress,
   isSubjectUnlocked, allBadgeDefs, evaluateBadges,
 } from "./progress.js";
 import { runChallenge, gradeResult, isPyodideReady } from "./pyodideRunner.js";
+import { isCloudEnabled, getCurrentUser, onAuthChange, signInWithGoogle, signOutUser } from "./authSync.js";
+import { pushProgressToCloud, reconcileProgressOnSignIn } from "./cloudSync.js";
 
 let progress = null;
 
@@ -28,6 +30,20 @@ function parseHash() {
 // Shared chrome
 // ---------------------------------------------------------------------
 
+function accountHtml() {
+  if (!isCloudEnabled()) {
+    return `<div class="stat" title="This PyMaster instance hasn't been connected to a Firebase project yet -- see README.md.">💾 Local only</div>`;
+  }
+  const user = getCurrentUser();
+  if (user) {
+    const name = escapeAttr(user.displayName || user.email || "Signed in");
+    return `
+      <div class="stat" title="Synced to your Google account">☁️ ${name}</div>
+      <button class="btn-ghost" id="sign-out-btn" style="padding:6px 10px;">Sign Out</button>`;
+  }
+  return `<button class="btn-secondary" id="sign-in-btn" style="padding:8px 14px;">Sign in with Google to sync</button>`;
+}
+
 function topbarHtml() {
   const level = levelForXp(progress.xp);
   const into = xpIntoLevel(progress.xp);
@@ -44,6 +60,7 @@ function topbarHtml() {
           <div class="level-bar"><div class="level-bar-fill" style="width:${pct}%"></div></div>
           <span style="font-size:12px;color:var(--text-muted)">${into}/${need}</span>
         </div>
+        ${accountHtml()}
       </div>
     </div>`;
 }
@@ -68,6 +85,8 @@ function showBadgeToasts(newBadges) {
 
 function attachTopbarNav() {
   q('[data-nav="/"]')?.addEventListener("click", () => goto("/"));
+  q("#sign-in-btn")?.addEventListener("click", () => signInWithGoogle());
+  q("#sign-out-btn")?.addEventListener("click", () => signOutUser());
 }
 
 // ---------------------------------------------------------------------
@@ -293,6 +312,7 @@ function renderChallengeView(lessonId, challengeId) {
     const newBadges = evaluateBadges(progress);
     if (xpEarned > 0) toast("Challenge complete!", `+${xpEarned} XP`, "⭐");
     showBadgeToasts(newBadges);
+    pushProgressToCloud(progress);
   }
 
   function showFeedback(passed, message) {
@@ -404,4 +424,14 @@ export function initApp() {
   progress = touchStreak(loadProgress());
   window.addEventListener("hashchange", render);
   render();
+
+  onAuthChange(async (user) => {
+    if (!user) {
+      render(); // signed out -- just re-render with the local progress as-is
+      return;
+    }
+    progress = await reconcileProgressOnSignIn(progress);
+    saveProgress(progress); // keep localStorage as an offline-readable cache
+    render();
+  });
 }
