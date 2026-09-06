@@ -23,7 +23,7 @@ export const CURRICULUM = [
         id: "basics-1",
         title: "Variables & print()",
         explanation: `
-A **variable** is just a name that stores a value. In Python you create one by assigning a value with <code>=</code> -- there's no need to declare a type first.
+A <b>variable</b> is just a name that stores a value. In Python you create one by assigning a value with <code>=</code> -- there's no need to declare a type first.
 
 <pre><code>name = "Ada"
 age = 36

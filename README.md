@@ -4,6 +4,14 @@
 
 A gamified, browser-based app for learning Python — real Python code runs live in the browser, no install required. Works entirely offline/local by default, with optional cloud sync so progress follows you across devices.
 
+**Built with a real frontend (HTML/CSS/JS + Pyodide) and a real backend (Firebase Authentication + Firestore database + Hosting).** See [Tech Stack](#tech-stack) below for the breakdown.
+
+## Screenshots
+
+| Dashboard | Lesson | Code challenge (real Python, graded live) |
+|---|---|---|
+| ![Dashboard](screenshots/dashboard.png) | ![Lesson](screenshots/lesson.png) | ![Code challenge](screenshots/code-challenge.png) |
+
 **Live features:**
 - **19 subjects**, 35 lessons, 80+ challenges — from variables and loops up through comprehensions, recursion, generators, decorators, regex, and JSON
 - Every lesson pairs a short explanation with a mix of **multiple-choice, fill-in-the-blank, and real code-writing challenges**
@@ -24,9 +32,22 @@ python -m http.server 8000
 
 Then open `http://localhost:8000` in a browser. Everything works immediately in guest mode — cloud sync is optional and requires the one-time setup below.
 
+## Tech Stack
+
+| Layer | What's used | Why |
+|---|---|---|
+| **Frontend** | Vanilla HTML / CSS / JavaScript (ES modules, no framework) | Full transparency, zero build step, every line is directly readable |
+| **In-browser Python execution** | [Pyodide](https://pyodide.org/) (CPython compiled to WebAssembly) | Runs real, untrusted user code safely client-side with zero server risk |
+| **Code editor UI** | [CodeMirror 5](https://codemirror.net/) | Syntax highlighting/line numbers for the code challenges |
+| **Backend — auth** | Firebase Authentication (Google sign-in) | Managed, secure OAuth — no passwords to design, store, or hash myself |
+| **Backend — database** | Firebase Firestore (NoSQL, document-based) | Stores each signed-in user's progress, access-controlled per user |
+| **Backend — hosting/deploy** | Firebase Hosting + Firebase CLI | Serves the static files over HTTPS at a real public URL |
+| **Local persistence (guest mode)** | Browser `localStorage` | Zero-setup progress saving with no account required |
+| **Offline / installable** | Web App Manifest + Service Worker | Makes it installable to a phone home screen (PWA), works offline |
+
 ## How this was built
 
-This is a **static, client-side web app** — there is no backend server to run or maintain yourself. Every file here runs entirely inside the browser tab; the only server-side piece is Google's own Firebase platform, used purely for optional sign-in and cross-device storage.
+This app has **both a frontend and a backend** — just not a backend I hand-wrote and host myself. The frontend is 100% custom code (this repo); the backend is Google's Firebase platform (Backend-as-a-Service), configured with my own project, my own database schema, and my own security rules. That's a completely standard, production-grade architecture — plenty of real startups run on exactly this pattern instead of a hand-rolled server.
 
 **Frontend:**
 - `index.html` / `style.css` — page structure and styling (responsive, works on mobile)

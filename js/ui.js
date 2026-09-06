@@ -83,6 +83,16 @@ function showBadgeToasts(newBadges) {
   newBadges.forEach((b) => toast(`Badge earned: ${b.name}`, b.description, b.icon));
 }
 
+/** Updates just the top bar's XP/level/streak/account display in place,
+ * without touching the rest of the current view (e.g. visible challenge
+ * feedback) the way a full render() would. */
+function refreshTopbar() {
+  const old = document.querySelector(".topbar");
+  if (!old) return;
+  old.outerHTML = topbarHtml();
+  attachTopbarNav();
+}
+
 function attachTopbarNav() {
   q('[data-nav="/"]')?.addEventListener("click", () => goto("/"));
   q("#sign-in-btn")?.addEventListener("click", () => signInWithGoogle());
@@ -313,6 +323,7 @@ function renderChallengeView(lessonId, challengeId) {
     if (xpEarned > 0) toast("Challenge complete!", `+${xpEarned} XP`, "⭐");
     showBadgeToasts(newBadges);
     pushProgressToCloud(progress);
+    refreshTopbar();
   }
 
   function showFeedback(passed, message) {
@@ -425,11 +436,20 @@ export function initApp() {
   window.addEventListener("hashchange", render);
   render();
 
+  // Firebase always fires this callback once immediately on page load with
+  // whatever the current auth state is (often just "not signed in" for a
+  // guest) -- that first call is not a real sign-out event, so it should
+  // NOT blow away whatever view the user is already looking at (e.g. a
+  // challenge mid-attempt, or a just-earned "Correct!" result). Only
+  // re-render for a *genuine* sign-out that happens after that.
+  let authInitialized = false;
   onAuthChange(async (user) => {
     if (!user) {
-      render(); // signed out -- just re-render with the local progress as-is
+      if (authInitialized) render(); // a real sign-out -- refresh the view
+      authInitialized = true;
       return;
     }
+    authInitialized = true;
     progress = await reconcileProgressOnSignIn(progress);
     saveProgress(progress); // keep localStorage as an offline-readable cache
     render();
