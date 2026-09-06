@@ -13,12 +13,12 @@
 // ---------------------------------------------------------------------
 
 export const firebaseConfig = {
-  apiKey: "PASTE_ME",
-  authDomain: "PASTE_ME",
-  projectId: "PASTE_ME",
-  storageBucket: "PASTE_ME",
-  messagingSenderId: "PASTE_ME",
-  appId: "PASTE_ME",
+  apiKey: "AIzaSyDQy1GG_EUZaBG_n-Xq93w9ELNpY6VmUfY",
+  authDomain: "pymaster-6a33d.firebaseapp.com",
+  projectId: "pymaster-6a33d",
+  storageBucket: "pymaster-6a33d.firebasestorage.app",
+  messagingSenderId: "265969049617",
+  appId: "1:265969049617:web:20bf26b3e8e4dbc56a51b0",
 };
 
 // The rest of the app checks this to know whether real Firebase config has
