@@ -1,5 +1,7 @@
 # PyMaster
 
+**Live at: https://pymaster-6a33d.web.app**
+
 A gamified, browser-based app for learning Python — real Python code runs live in the browser, no install required. Works entirely offline/local by default, with optional cloud sync so progress follows you across devices.
 
 **Live features:**
@@ -45,7 +47,7 @@ This is a **static, client-side web app** — there is no backend server to run 
 
 ## Setting up cloud sync (optional)
 
-Without this setup, PyMaster works completely fine in guest-only mode — this section is only needed if you want the "Sign in with Google" cross-device sync to actually work.
+The live deployment above already has this fully set up (Firebase Auth + Firestore) — these steps are for anyone forking this repo who wants to connect their own Firebase project instead. Without this setup, PyMaster works completely fine in guest-only mode.
 
 1. Go to the [Firebase console](https://console.firebase.google.com) and create a new project (free).
 2. In the project, click **Build → Authentication → Get Started**, enable the **Google** sign-in provider.
@@ -65,7 +67,7 @@ Without this setup, PyMaster works completely fine in guest-only mode — this s
 6. Paste those values into `js/firebaseConfig.js` in this project (replacing the `"PASTE_ME"` placeholders).
 7. Reload PyMaster — a "Sign in with Google" button now appears in the top bar and actually works.
 
-(Optional) To also host PyMaster itself on Firebase Hosting instead of running it locally: install the Firebase CLI, run `firebase login`, `firebase init hosting` inside this folder (pointing it at the current directory as the public folder), then `firebase deploy`.
+To deploy your own copy to Firebase Hosting: install the Firebase CLI (`npm install -g firebase-tools`), run `firebase login`, create `firebase.json` (`{"hosting": {"public": ".", "ignore": ["firebase.json", "**/.*", ".git/**", ".firebase/**", "**/node_modules/**"]}}`) and `.firebaserc` (`{"projects": {"default": "YOUR-PROJECT-ID"}}`) in this folder, then run `firebase deploy --only hosting`.
 
 ## Installing it like an app (PWA)
 
